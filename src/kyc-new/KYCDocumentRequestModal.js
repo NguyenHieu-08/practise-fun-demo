@@ -3,132 +3,65 @@ import React, {useEffect, useRef, useState} from 'react';
 import VerificationComponent from './VerificationComponent';
 import BlockingRulesComponent from './BlockingRulesComponent';
 import NotificationComponent from './NotificationComponent';
-import {fetchBlockingRulesStart, fetchNotificationStart} from "./shard/KYCSlice";
+import {fetchBlockingRulesStart, fetchNotificationStart, fetchVerificationPurposeStart} from "./shard/KYCSlice";
 import { useDispatch } from 'react-redux';
 import './KYCDocumentRequest.scss';
 
 const KYCDocumentRequestModal = ({ isOpen, onClose, onCreate }) => {
     const dispatch = useDispatch();
-    const verifiesFake = [
-        {
-            "key": "poi",
-            "label": "Proof of Identity (POI)",
-            "documents": [
-                {
-                    "label": "Passport",
-                    "isSelected": true,
-                    "isDisabled": true
-                },
-                {
-                    "label": "ID Card",
-                    "isSelected": true,
-                    "isDisabled": true
-                },
-                {
-                    "label": "Driving Licence",
-                    "isSelected": true,
-                    "isDisabled": true
-                }
-            ]
-        },
-        {
-            "key": "poa",
-            "label": "Proof of Address (POA)",
-            "documents": [
-                {
-                    "label": "Utility Bill",
-                    "isSelected": false,
-                    "isDisabled": false
-                },
-                {
-                    "label": "Rental Agreement",
-                    "isSelected": true,
-                    "isDisabled": true
-                },
-                {
-                    "label": "Bank Statement",
-                    "isSelected": false,
-                    "isDisabled": false
-                }
-            ]
-        },
-        {
-            "key": "selfie",
-            "label": "Selfie",
-            "documents": []
-        }
-    ];
 
     const blockingRuleRef = useRef();
     const notificationRef = useRef();
-    const [verifies, setVerifies ] = useState([...verifiesFake]);
-    const [openSections, setOpenSections] = useState({});
-
-    useEffect(() => {
-        if(verifiesFake) {
-            setOpenSections(() => {
-                const initial = {};
-                verifiesFake.forEach(section => {
-                    initial[section.key] = section.documents.length > 0;
-                });
-                return initial;
-            });
-        }
-    }, []);
+    const verificationPurposeRef = useRef();
 
     useEffect(() => {
         dispatch(fetchBlockingRulesStart(1));
         dispatch(fetchNotificationStart());
+        dispatch(fetchVerificationPurposeStart());
     }, []);
-
-    const toggleSection = (key) => {
-        setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
-    const toggleDocument = (sectionKey, docIndex) => {
-        setVerifies(prev => {
-            return prev.map(section => {
-                if (section.key !== sectionKey) return section;
-
-                const item = section.documents[docIndex];
-
-                // Nếu bị disable → không cho thay đổi
-                if (item.isDisabled) {
-                    return section;
-                }
-
-                // Tạo bản sao mới của documents
-                const newDocuments = [...section.documents];
-                newDocuments[docIndex] = {
-                    ...item,
-                    isSelected: !item.isSelected
-                };
-
-                return {
-                    ...section,
-                    documents: newDocuments
-                };
-            });
-        });
-    };
 
     const handleCreate = () => {
 
-        const payload = { verifies: {} };
+        const payload = {
+            verifies: {},        // ← KHỞI TẠO NGAY TỪ ĐẦU → không bao giờ undefined
+            notification: [],
+            blockingRules: {}
+        };
+
+        // === 1. Notification ===
         if (notificationRef.current?.isEnabled()) {
             payload.notification = notificationRef.current?.getNotification()
                 .channels.filter(notify => notify.isSelected)
                 .map(notify => parseInt(notify.id));
         }
-        verifies.forEach(section => {
-            const selectedLabels = section.documents
-                .filter(doc => doc.isSelected)
-                .map(doc => doc.label);
 
-            if (selectedLabels.length > 0) {
-                payload.verifies[section.key] = selectedLabels;
+        // === 2. Verification Purpose ===
+        const verificationData = verificationPurposeRef.current?.getVerificationPurpose() || [];
+        const openSections = verificationPurposeRef.current?.getOpenSections() || {};
+
+        verificationData.forEach(section => {
+            const sectionId = section.id;
+
+            if (section.documents.length > 0) {
+                const selectedDocIds = section.documents
+                    .filter(doc => doc.isSelected)
+                    .map(doc => doc.id);
+
+                if (selectedDocIds.length > 0) {
+                    payload.verifies[sectionId] = selectedDocIds;
+                }
+            } else {
+                if (openSections[sectionId]) {
+                    payload.verifies[sectionId] = [0];
+                }
             }
         });
+
+        if (Object.keys(payload.verifies).length === 0) {
+            delete payload.verifies;
+        }
+
+        // === 3. Blocking Rules ===
         payload.blockingRules = extractBooleanValues(blockingRuleRef.current?.getBlockingRules());
         onCreate?.(payload);
         console.log("Gửi về backend:", payload);
@@ -166,12 +99,7 @@ const KYCDocumentRequestModal = ({ isOpen, onClose, onCreate }) => {
                 </div>
 
                 <div style={{ padding: '24px' }}>
-                    <VerificationComponent
-                        verifies={verifies}
-                        openSections={openSections}
-                        onToggleSection={toggleSection}
-                        onToggleDocument={toggleDocument}
-                    />
+                    <VerificationComponent ref={verificationPurposeRef}/>
 
                     <BlockingRulesComponent ref={blockingRuleRef}/>
 

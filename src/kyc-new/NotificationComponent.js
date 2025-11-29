@@ -82,7 +82,7 @@ const NotificationComponent = forwardRef((props, ref) => {
                 </span>
             </div>
 
-            {isOpened && (
+            {isOpened && notification.channels.length > 0 && (
                 <div className="notification__body">
                     <div className="channel-grid">
                         {(notification.channels || []).map(notify => (

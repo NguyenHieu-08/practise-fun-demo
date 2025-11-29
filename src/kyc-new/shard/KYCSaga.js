@@ -3,6 +3,7 @@ import {
     fetchBlockingRulesStart,
     fetchBlockingRulesSuccess,
     fetchBlockingRulesFailure, fetchNotificationSuccess, fetchNotificationFailure, fetchNotificationStart,
+    fetchVerificationPurposeFailure, fetchVerificationPurposeStart, fetchVerificationPurposeSuccess,
 } from './KYCSlice';
 
 function* fetchBlockingRulesSaga(action) {
@@ -36,7 +37,23 @@ function* fetchNotificationSaga() {
     }
 }
 
+function* fetchVerificationPurposeSaga() {
+    try {
+        const response = yield call(
+            fetch,
+            `http://localhost:3000/verificationPurposes`
+        );
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = yield response.json();
+
+        yield put(fetchVerificationPurposeSuccess(data));
+    } catch (error) {
+        yield put(fetchVerificationPurposeFailure(error.message));
+    }
+}
+
 export function* KYCSaga() {
     yield takeLatest(fetchBlockingRulesStart, fetchBlockingRulesSaga);
     yield takeLatest(fetchNotificationStart, fetchNotificationSaga);
+    yield takeLatest(fetchVerificationPurposeStart, fetchVerificationPurposeSaga);
 }
