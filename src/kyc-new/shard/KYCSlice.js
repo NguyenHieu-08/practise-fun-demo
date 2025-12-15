@@ -1,13 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
-    verificationPurposeData: {},
+    verificationPurpose: [],
     verificationPurposeLoading: false,
     verificationPurposeError: null,
     blockingRuleData: {},
     blockingRuleLoading: false,
     blockingRuleError: null,
-    notificationData: {},
+    notificationMethods: {},
     notificationLoading: false,
     notificationError: null,
 };
@@ -47,20 +47,28 @@ const KYCSlice = createSlice({
         fetchNotificationSuccess(state, action) {
             state.notificationLoading = false;
             const data = action.payload || [];
-            let result = {
-                enabled: false,
-                channels: []
-            };
-            if (Object.keys(data).length > 0) {
-                result = {
-                    enabled: data.some(item => item.isSelected === true),
-                    channels: [...data].map(item => ({
-                        ...item,
-                        isDisabled: item.isSelected === true
-                    }))
-                };
-            }
-            state.notificationData = {...result}
+            // let result = {
+            //     enabled: false,
+            //     channels: []
+            // };
+            // if (Object.keys(data).length > 0) {
+            //     result = {
+            //         enabled: data.some(item => item.isSelected === true),
+            //         channels: [...data].map(item => ({
+            //             ...item,
+            //             isDisabled: item.isSelected === true
+            //         }))
+            //     };
+            // }
+            // state.notificationData = {...result}
+
+            state.notificationMethods = [{
+                label: "Send Notification",
+                data: [...data].map(item => ({
+                    ...item,
+                    isDisabled: item.isSelected === true
+                }))
+            }];
         },
         fetchNotificationFailure(state, action) {
             state.notificationLoading = false;
@@ -76,12 +84,12 @@ const KYCSlice = createSlice({
             state.verificationPurposeLoading = false;
             const data = [...(action.payload || [])].map(payload => ({
                 ...payload,
-                documents: payload?.documents.map(doc => ({
+                data: payload?.data.map(doc => ({
                     ...doc,
                     isDisabled: doc.isSelected
                 }))
             })) || [];
-            state.verificationPurposeData = [...data]
+            state.verificationPurpose = [...data]
         },
         fetchVerificationPurposeFailure(state, action) {
             state.verificationPurposeLoading = false;
