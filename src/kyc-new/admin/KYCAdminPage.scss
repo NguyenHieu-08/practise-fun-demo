@@ -1,0 +1,329 @@
+.kyc-admin-page {
+    padding: 20px;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+
+    &__header {
+        margin-bottom: 20px;
+    }
+
+    &__content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    &__row {
+        display: flex;
+        gap: 20px;
+        width: 100%;
+    }
+
+    &__col {
+        flex: 1;
+
+        &--left {
+            flex: 1;
+        }
+
+        &--right {
+            flex: 1;
+        }
+
+        &--full {
+            flex: 1 1 100%;
+        }
+    }
+}
+
+// Brand Selector
+.brand-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    &__label {
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    &__select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: white;
+        cursor: pointer;
+
+        &:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+    }
+}
+
+// Section Card
+.section-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    &__header {
+        background-color: #007bff;
+        color: white;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    &__body {
+        padding: 20px;
+
+        &--scrollable {
+            overflow-x: auto;
+        }
+    }
+}
+
+// Buttons
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &--primary {
+        background-color: #007bff;
+        color: white;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+
+    &--secondary {
+        background-color: #6c757d;
+        color: white;
+
+        &:hover {
+            background-color: #545b62;
+        }
+    }
+}
+
+// Data Table
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    &--wide {
+        min-width: 1200px;
+    }
+
+    thead {
+        background-color: #f8f9fa;
+    }
+
+    th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        color: #495057;
+        font-size: 13px;
+    }
+
+    td {
+        padding: 12px;
+        border-bottom: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
+
+    tbody tr {
+        &:hover {
+            background-color: #f8f9fa;
+        }
+    }
+}
+
+// Form Fields
+.input-field,
+.select-field {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    width: 100%;
+    max-width: 200px;
+
+    &:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+}
+
+.checkbox-field {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+// Action Buttons
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #f0f0f0;
+    }
+
+    &--check {
+        color: #28a745;
+    }
+
+    &--close {
+        color: #dc3545;
+    }
+
+    &--edit {
+        color: #007bff;
+    }
+
+    &--delete {
+        color: #dc3545;
+    }
+}
+
+// Status Select
+.status-select {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #007bff;
+    }
+}
+
+// Notification & Volunteer Upload Lists
+.notification-list,
+.volunteer-upload-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.notification-item,
+.volunteer-upload-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &__label {
+        font-size: 14px;
+        color: #495057;
+        font-weight: 500;
+    }
+}
+
+// Toggle Switch
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+
+    &__input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    &__slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 24px;
+
+        &:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        &--active {
+            background-color: #28a745;
+
+            &:before {
+                transform: translateX(26px);
+            }
+        }
+    }
+
+    &__input:checked + &__slider {
+        background-color: #28a745;
+
+        &:before {
+            transform: translateX(26px);
+        }
+    }
+
+    &__input:focus + &__slider {
+        box-shadow: 0 0 1px #28a745;
+    }
+}
+
+// Responsive
+@media (max-width: 1200px) {
+    .kyc-admin-page {
+        &__row {
+            flex-direction: column;
+        }
+    }
+}
+
