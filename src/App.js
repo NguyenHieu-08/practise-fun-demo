@@ -1,16 +1,14 @@
 import React from 'react';
-import VerificationForm from './kyc-old/Product';
-import KYCDocumentRequestModal from "./kyc-new/KYCDocumentRequestModal";
-import KYCAdminPage from "./kyc-new/admin/KYCAdminPage";
-
+import CarouselPage from './carousel/CarouselPage';
+import CarouselLibPage from "./carousel/CarouselLibPage";
 
 function App() {
-
-    return (
-        // <VerificationForm />
-        // <KYCDocumentRequestModal isOpen/>
-        <KYCAdminPage />
-    );
+    return <>
+        <CarouselPage />
+        <br/>
+        <CarouselLibPage/>
+    </>
+    ;
 }
 
 export default App;

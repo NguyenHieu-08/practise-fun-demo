@@ -61,3 +61,5 @@ const KYCAdminPage: React.FC = () => {
 
 export default React.memo(KYCAdminPage);
 
+
+

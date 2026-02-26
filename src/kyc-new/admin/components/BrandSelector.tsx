@@ -30,3 +30,5 @@ const BrandSelector: React.FC<BrandSelectorProps> = ({ selectedBrand, onBrandCha
 
 export default React.memo(BrandSelector);
 
+
+
