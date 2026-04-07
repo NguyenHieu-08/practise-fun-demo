@@ -6,6 +6,7 @@ import {arrayMove, useSortable} from '@dnd-kit/sortable';
 import './CarouselPage3.scss';
 import 'antd/dist/reset.css';
 import DragSortingTable, {RowContext} from "./drag-sorting-table";
+import AddEntryModal from "../../add-carousel/add-entry-modal.component";
 
 const MAX_POSITIONS = 16; // Maximum number of carousel entries allowed
 const LIVE_COUNT = 6; // Number of positions shown in the "live" carousel section
@@ -62,6 +63,8 @@ const CarouselLibPage3 = () => {
 
     // Ref: generate next unique ID for new entries
     const nextIdRef = useRef(entries.length + 1);
+
+    const [modalOpen, setModalOpen] = useState(false);
 
     // Derived value: total number of active entries
     const activeCount = entries.length;
@@ -296,7 +299,7 @@ const CarouselLibPage3 = () => {
 
             <div className="carousel-page__toolbar">
                 <div className="carousel-page__toolbar-left">
-                    <button type="button" className="btn btn--primary" disabled={activeCount >= MAX_POSITIONS} onClick={() => {}}>
+                    <button type="button" className="btn btn--primary" disabled={activeCount >= MAX_POSITIONS} onClick={() => setModalOpen(true)}>
                         + Add Entry
                     </button>
                     <button type="button" className="btn btn--secondary">Share with NEV</button>
@@ -342,6 +345,15 @@ const CarouselLibPage3 = () => {
                     })}
                 />
             </div>
+
+            <AddEntryModal
+                isOpen={modalOpen}
+                onClose={() => setModalOpen(false)}
+                onSave={(data) => {
+                    console.log('Data lưu:', data);
+                    // Gọi API ở đây
+                }}
+            />
         </div>
     );
 };
