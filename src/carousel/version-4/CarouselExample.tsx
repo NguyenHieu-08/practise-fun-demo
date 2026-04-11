@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import CarouselTable from './CarouselLibPage4';
+import AddEntryModal from "../../add-carousel/add-entry-modal.component";
 
 // Define entry type
 export type CarouselEntry = {
@@ -17,6 +18,13 @@ export type CarouselEntry = {
     country: string;
     language: string;
     visible: boolean;
+    parlayData?: Array<{
+        leg: number;
+        event: string;
+        market: string;
+        selection: string;
+        odds: number;
+    }>;
 };
 
 // Sample data
@@ -67,7 +75,13 @@ const createInitialEntries = (): CarouselEntry[] => [
         expiryDateTime: '30-07-2025 18:01:08',
         country: 'Default',
         language: 'Default',
-        visible: true
+        visible: true,
+        // ==================== THÊM PARLAY DATA ====================
+        parlayData: [
+            {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'MUN Win', odds: 1.85},
+            {leg: 2, event: 'Real Madrid vs Barcelona', market: 'Over/Under', selection: 'Over 2.5', odds: 1.95},
+            {leg: 3, event: 'Liverpool vs Chelsea', market: 'Both Teams To Score', selection: 'Yes', odds: 1.75}
+        ]
     },
     {
         id: '4',
@@ -115,12 +129,17 @@ const createInitialEntries = (): CarouselEntry[] => [
         expiryDateTime: '30-07-2025 18:01:08',
         country: 'Default',
         language: 'English',
-        visible: true
+        visible: true,
+        // ==================== THÊM PARLAY DATA ====================
+        parlayData: [
+            {leg: 1, event: 'Golden State Warriors vs LA Lakers', market: 'Spread', selection: 'GSW -5.5', odds: 1.90},
+            {leg: 2, event: 'Boston Celtics vs Miami Heat', market: 'Total Points', selection: 'Over 218.5', odds: 1.87}
+        ]
     },
     {
         id: '7',
         position: 7,
-        type: 'Single',
+        type: 'Single TEST',
         sport: 'Soccer',
         league: 'NBA',
         event: 'MUN vs LIV',
@@ -163,11 +182,17 @@ const createInitialEntries = (): CarouselEntry[] => [
         expiryDateTime: '30-07-2025 18:01',
         country: 'Default',
         language: 'Default',
-        visible: false
+        visible: false,
+        // ==================== THÊM PARLAY DATA ====================
+        parlayData: [
+            {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'Draw', odds: 3.20},
+            {leg: 2, event: 'Man City vs Arsenal', market: 'Asian Handicap', selection: 'Man City -1', odds: 2.10}
+        ]
     },
-    {
-        id: '10',
-        position: 10,
+    // Các entry còn lại giữ nguyên (Single, Banner, Link/Freetext không cần parlayData)
+    ...Array.from({length: 8}, (_, i) => ({
+        id: String(10 + i),
+        position: 10 + i,
         type: 'Single',
         sport: 'Tennis',
         league: 'NBA',
@@ -180,126 +205,19 @@ const createInitialEntries = (): CarouselEntry[] => [
         country: 'Default',
         language: 'Default',
         visible: true
-    },
-    {
-        id: '11',
-        position: 11,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '12',
-        position: 12,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '13',
-        position: 13,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '14',
-        position: 14,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '15',
-        position: 15,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '16',
-        position: 16,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '17',
-        position: 17,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
+    }))
 ];
 
 
 const MyPage: React.FC = () => {
+    // const [entries, setEntries] = useState<CarouselEntry[]>([createInitialEntries()?.[0]]);
+    // const [entries, setEntries] = useState<CarouselEntry[]>([]);
     const [entries, setEntries] = useState<CarouselEntry[]>(createInitialEntries);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [modalOpen, setModalOpen] = useState(false);
 
-    return (
+
+    return <>
         <CarouselTable
             entries={entries}
             title="My Carousel"
@@ -307,10 +225,22 @@ const MyPage: React.FC = () => {
             onEntriesChange={setEntries}
             onSave={(data) => console.log('Save:', data)}
             leftButtons={[
-                {label: '+ Add', onClick: () => console.log('Add'), type: 'primary'},
+                {label: '+ Add', onClick: () => setModalOpen(true), type: 'primary', disabled: entries.length >= 16},
             ]}
+            isEditMode={isEditMode}
+            onEditClick={setIsEditMode}
         />
-    );
+
+        <br/>
+        <AddEntryModal
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={(data) => {
+                console.log('Data lưu:', data);
+                // Gọi API ở đây
+            }}
+        />
+    </>;
 };
 
 export default MyPage;

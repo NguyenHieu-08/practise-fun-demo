@@ -9,6 +9,10 @@
   min-height: 100vh;
 }
 
+.not-allowed-drop{
+  cursor: not-allowed;
+}
+
 .carousel-page__header-bar {
   background-color: #3b7bbf;
   color: #ffffff;
@@ -127,6 +131,9 @@
       background-color: #f5f8fd;
       font-weight: bold;
     }
+    &:hover > td {
+      background: #f5f8fd !important;
+    }
   }
 
   // Draggable rows
@@ -140,21 +147,12 @@
   }
 
   .ant-table-tbody {
-    > tr:hover > td {
-      background: #fff1b8 !important;
-      transition: background 0.2s ease;
-    }
-
 
     > tr.carousel-row:hover > td {
       background: #fff1b8 !important;
       transition: background 0.2s ease;
     }
 
-    > tr.section-row:hover > td {
-      background: #fff1b8 !important;
-      transition: background 0.2s ease;
-    }
 
     // Dragging row
     > tr.dragging-row > td,
@@ -180,6 +178,10 @@
       background: #ffccc7 !important;
       cursor: not-allowed !important;
       transition: background 0.15s ease;
+    }
+
+    .not-allowed-drop {
+      cursor: not-allowed !important;
     }
   }
 }
@@ -230,5 +232,24 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+  }
+}
+
+.info-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #1890ff;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  user-select: none;
+
+  &:hover {
+    background-color: #40a9ff;
   }
 }

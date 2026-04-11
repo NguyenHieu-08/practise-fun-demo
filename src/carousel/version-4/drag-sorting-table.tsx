@@ -100,6 +100,7 @@ const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps
                     components={{body: {row: Row}}}
                     columns={columns}
                     dataSource={dataSource}
+                    virtual={true}
                     {...rest}
                 />
             </SortableContext>

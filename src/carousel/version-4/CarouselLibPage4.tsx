@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import type {TableColumnsType} from 'antd';
+import {Popover, TableColumnsType} from 'antd';
 import type {DragEndEvent, DragOverEvent} from '@dnd-kit/core';
 import {arrayMove, useSortable} from '@dnd-kit/sortable';
 
@@ -50,6 +50,8 @@ export interface CarouselTableProps<T extends BaseEntry> {
     onSave?: (entries: T[]) => void;
     onCancel?: (entries: T[]) => void;
     className?: string;
+    isEditMode?: boolean;
+    onEditClick?: (value: boolean) => void;
 }
 
 // ===================== HELPERS =====================
@@ -70,7 +72,7 @@ function isSectionRow<T extends BaseEntry>(record: TableRecord<T>): record is Se
 
 // ===================== DRAG HANDLE =====================
 
-export const DragHandle: React.FC<{ id: string }> = ({id}) => {
+export const DragHandle = ({id}: {id: string}) => {
     const {attributes} = useSortable({id});
     const {setActivatorNodeRef, listeners} = useContext(RowContext);
 
@@ -100,6 +102,8 @@ function CarouselTable<T extends BaseEntry>({
                                                 onSave,
                                                 onCancel,
                                                 className = '',
+                                                isEditMode = false,
+                                                onEditClick,
                                             }: CarouselTableProps<T>) {
     // Ensure entries is always an array
     const entries = Array.isArray(entriesProp) ? entriesProp : [];
@@ -109,128 +113,173 @@ function CarouselTable<T extends BaseEntry>({
     const initialEntriesRef = useRef<T[]>(entries);
     const COLUMNS_COUNT = 15;
 
-    const columns: TableColumnsType<TableRecord<CarouselEntry>> = [
-        {
-            title: 'No',
-            dataIndex: 'position',
-            key: 'position',
-            onCell: (record) => ('isSection' in record ? {colSpan: COLUMNS_COUNT} : {}),
-            render: (_, record) => ('isSection' in record
-                    ? (record.isSection === 'live' ? 'Currently live Carousel Entries' : 'Carousel backup entries')
-                    : record.position
-            ),
-        },
-        {
-            title: 'Drag',
-            key: 'drag',
-            width: 60,
-            onCell: (record) => ('isSection' in record ? {colSpan: 0} : {}),
-            render: (_, record) => ('isSection' in record ? null : <DragHandle id={record.id}/>),
-        },
-        {
-            title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.type)
-        },
-        {
-            title: 'Sport',
-            dataIndex: 'sport',
-            key: 'sport',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.sport)
-        },
-        {
-            title: 'League',
-            dataIndex: 'league',
-            key: 'league',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.league)
-        },
-        {
-            title: 'Event',
-            dataIndex: 'event',
-            key: 'event',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.event)
-        },
-        {
-            title: 'Period',
-            dataIndex: 'period',
-            key: 'period',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.period)
-        },
-        {
-            title: 'Grading Units',
-            dataIndex: 'gradingUnits',
-            key: 'gradingUnits',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.gradingUnits)
-        },
-        {
-            title: 'Market Type',
-            dataIndex: 'marketType',
-            key: 'marketType',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.marketType)
-        },
-        {
-            title: 'Header',
-            dataIndex: 'header',
-            key: 'header',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.header)
-        },
-        {
-            title: 'Expiry Date/Time',
-            dataIndex: 'expiryDateTime',
-            key: 'expiryDateTime',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.expiryDateTime)
-        },
-        {
-            title: 'Country',
-            dataIndex: 'country',
-            key: 'country',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.country)
-        },
-        {
-            title: 'Language',
-            dataIndex: 'language',
-            key: 'language',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, r) => ('isSection' in r ? null : r.language)
-        },
-        {
-            title: 'Visible',
-            key: 'visible',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, record) => ('isSection' in record ? null : (
-                <input
-                    type="checkbox"
-                    checked={record.visible}
-                    onChange={() => handleToggleVisible(record.id)}
-                />
-            )),
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
-            render: (_, record) => ('isSection' in record ? null : (
-                <button type="button" className="remove-link"
-                    // onClick={() => handleRemove(record.id)}
-                >
-                    Remove
-                </button>
-            )),
-        },
-    ];
+    const columns: TableColumnsType<TableRecord<CarouselEntry>> = React.useMemo(() => {
+        const baseColumns: TableColumnsType<TableRecord<CarouselEntry>> = [
+            {
+                title: 'No',
+                dataIndex: 'position',
+                key: 'position',
+                onCell: (record) => ('isSection' in record ? {colSpan: COLUMNS_COUNT} : {}),
+                render: (_, record) => ('isSection' in record
+                        ? (record.isSection === 'live' ? 'Currently live Carousel Entries' : 'Carousel backup entries')
+                        : record.position
+                ),
+            },
+            ...(isEditMode ? [{
+                title: 'Drag',
+                key: 'drag',
+                width: 60,
+                onCell: (record) => ('isSection' in record ? {colSpan: 0} : {}),
+                render: (_, record) => ('isSection' in record ? null : <DragHandle id={record.id}/>),
+            }] : []),
+            {
+                title: 'Type',
+                dataIndex: 'type',
+                key: 'type',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                // render: (_, r) => ('isSection' in r ? null : r.type)
+                render: (_, record) => {
+                    if ('isSection' in record) return null;
 
-    console.log(entries)
+                    const isParlay = record.type === 'Parlay' || record.type?.toLowerCase() === 'parlay';
+                    const hasParlayData = record.parlayData && Array.isArray(record.parlayData) && record.parlayData.length > 0;
+
+                    if (isParlay && hasParlayData) {
+                        return (
+                            <div style={{display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                Parlay
+                                <Popover
+                                    title="Parlay Details"
+                                    content={
+                                        <div style={{maxWidth: 400}}>
+                                            <p><strong>Number of legs:</strong> {record.parlayData.length}</p>
+                                            {record.parlayData.map((leg: any, index: number) => (
+                                                <div key={index} style={{
+                                                    marginBottom: 8,
+                                                    padding: 8,
+                                                    background: '#f5f5f5',
+                                                    borderRadius: 4
+                                                }}>
+                                                    <strong>Leg {index + 1}:</strong> {JSON.stringify(leg)}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    }
+                                    trigger="hover"
+                                    placement="right"
+                                    mouseEnterDelay={0.3}
+                                >
+                                    <span className="info-icon">i</span>
+                                </Popover>
+                            </div>
+                        );
+                    }
+
+                    // Trường hợp bình thường
+                    return record.type;
+                },
+            },
+            {
+                title: 'Sport',
+                dataIndex: 'sport',
+                key: 'sport',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.sport)
+            },
+            {
+                title: 'League',
+                dataIndex: 'league',
+                key: 'league',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.league)
+            },
+            {
+                title: 'Event',
+                dataIndex: 'event',
+                key: 'event',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.event)
+            },
+            {
+                title: 'Period',
+                dataIndex: 'period',
+                key: 'period',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.period)
+            },
+            {
+                title: 'Grading Units',
+                dataIndex: 'gradingUnits',
+                key: 'gradingUnits',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.gradingUnits)
+            },
+            {
+                title: 'Market Type',
+                dataIndex: 'marketType',
+                key: 'marketType',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.marketType)
+            },
+            {
+                title: 'Header',
+                dataIndex: 'header',
+                key: 'header',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.header)
+            },
+            {
+                title: 'Expiry Date/Time',
+                dataIndex: 'expiryDateTime',
+                key: 'expiryDateTime',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.expiryDateTime)
+            },
+            {
+                title: 'Country',
+                dataIndex: 'country',
+                key: 'country',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.country)
+            },
+            {
+                title: 'Language',
+                dataIndex: 'language',
+                key: 'language',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, r) => ('isSection' in r ? null : r.language)
+            },
+            {
+                title: 'Visible',
+                key: 'visible',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, record) => ('isSection' in record ? null : (
+                    <input
+                        type="checkbox"
+                        checked={record.visible}
+                        disabled={!isEditMode}
+                        onChange={() => handleToggleVisible(record.id)}
+                    />
+                )),
+            },
+            ...(isEditMode ? [{
+                title: 'Actions',
+                key: 'actions',
+                onCell: (r) => ('isSection' in r ? {colSpan: 0} : {}),
+                render: (_, record) => ('isSection' in record ? null : (
+                    <div>
+                        <button type="button" className="edit-link">Edit</button>
+                        <button type="button" className="remove-link"
+                            // onClick={() => handleRemove(record.id)}
+                        >
+                            Remove
+                        </button>
+                    </div>
+                )),
+            }] : [])
+        ]
+        return baseColumns;
+    }, [isEditMode, entries]);
 
     // Update ref when entries prop changes from parent
     useEffect(() => {
@@ -257,13 +306,19 @@ function CarouselTable<T extends BaseEntry>({
     const backupEntries = sorted.filter((e) => e.position > liveCount);
     const sortableIds = entries.map((e) => e.id);
 
-    const tableData: TableRecord<T>[] = [
+    // const tableData: TableRecord<T>[] = [
+    //     {id: 'section-live', isSection: 'live'},
+    //     ...liveEntries,
+    //     ...(backupEntries.length > 0
+    //         ? [{id: 'section-backup', isSection: 'backup' as const}, ...backupEntries]
+    //         : []),
+    // ];
+
+    const tableData: TableRecord<T>[] = entries?.length > 0 ? [
         {id: 'section-live', isSection: 'live'},
         ...liveEntries,
-        ...(backupEntries.length > 0
-            ? [{id: 'section-backup', isSection: 'backup' as const}, ...backupEntries]
-            : []),
-    ];
+        ...[{id: 'section-backup', isSection: 'backup' as const}, ...backupEntries],
+    ] : [];
 
 
     // ==================== Handlers ====================
@@ -274,12 +329,14 @@ function CarouselTable<T extends BaseEntry>({
         initialEntriesRef.current = entries;
         setHasUnsavedChanges(false);
         onSave?.(entries);
+        onEditClick(false);
     };
 
     const handleCancel = () => {
         onEntriesChange(initialEntriesRef.current);
         setHasUnsavedChanges(false);
         onCancel?.(initialEntriesRef.current);
+        onEditClick(false);
     };
 
     const isInvalidDrop = (activeId: string, overId: string): boolean => {
@@ -346,7 +403,7 @@ function CarouselTable<T extends BaseEntry>({
     // Toggle visibility of an entry
     const handleToggleVisible = (id: string) => {
         const newEntries = entries.map((entry) =>
-            entry.id === id ? { ...entry, visible: !entry.visible } : entry
+            entry.id === id ? {...entry, visible: !entry.visible} : entry
         );
 
         onEntriesChange(newEntries);
@@ -362,7 +419,7 @@ function CarouselTable<T extends BaseEntry>({
         }
         const isLive = record.position <= liveCount;
         return invalidLiveDrop && isLive
-            ? `${CSS_CLASSES.CAROUSEL_ROW} ${CSS_CLASSES.INVALID_DROP}`
+            ? `${CSS_CLASSES.CAROUSEL_ROW} ${CSS_CLASSES.INVALID_DROP} not-allowed-drop`
             : CSS_CLASSES.CAROUSEL_ROW;
     };
 
@@ -396,25 +453,62 @@ function CarouselTable<T extends BaseEntry>({
                     ))}
                 </div>
                 <div className={CSS_CLASSES.TOOLBAR_RIGHT}>
-                    {defaultRightButtons.map((btn, i) => (
-                        <button
-                            key={i}
-                            type="button"
-                            className={`btn btn--${btn.type || BUTTON_TYPES.PRIMARY}`}
-                            disabled={btn.disabled}
-                            onClick={btn.onClick}
-                        >
-                            {btn.label}
-                        </button>
-                    ))}
-                    {hasUnsavedChanges && (
-                        <span className={CSS_CLASSES.UNSAVED_LABEL}>{DEFAULT_UNSAVED_MESSAGE}</span>
+                    //TODO: remove
+                    {/*{defaultRightButtons.map((btn, i) => (*/}
+                    {/*    <button*/}
+                    {/*        key={i}*/}
+                    {/*        type="button"*/}
+                    {/*        className={`btn btn--${btn.type || BUTTON_TYPES.PRIMARY}`}*/}
+                    {/*        disabled={btn.disabled}*/}
+                    {/*        onClick={btn.onClick}*/}
+                    {/*    >*/}
+                    {/*        {btn.label}*/}
+                    {/*    </button>*/}
+                    {/*))}*/}
+                    {/*{hasUnsavedChanges && (*/}
+                    {/*    <span className={CSS_CLASSES.UNSAVED_LABEL}>{DEFAULT_UNSAVED_MESSAGE}</span>*/}
+                    {/*)}*/}
+
+                    {isEditMode ? (
+                        <>
+                            <button
+                                type="button"
+                                className="btn btn--primary"
+                                disabled={!hasUnsavedChanges}
+                                onClick={handleSave}
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn--secondary"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </button>
+                            {hasUnsavedChanges && (
+                                <span className={CSS_CLASSES.UNSAVED_LABEL}>
+                                    {DEFAULT_UNSAVED_MESSAGE}
+                                </span>
+                            )}
+                        </>
+                    ) : (
+                        onEditClick && (
+                            <button
+                                type="button"
+                                className="btn btn--primary"
+                                onClick={() => onEditClick(true)}
+                            >
+                                Edit
+                            </button>
+                        )
                     )}
                 </div>
             </div>
 
             <div className={CSS_CLASSES.TABLE_WRAPPER}>
                 <DragSortingTable
+                    rowKey="id"
                     className={CSS_CLASSES.TABLE}
                     columns={columns}
                     dataSource={tableData}
@@ -423,7 +517,6 @@ function CarouselTable<T extends BaseEntry>({
                     onDragOver={handleDragOver}
                     onDragCancel={handleDragCancel}
                     onDragEnd={handleDragEnd}
-                    rowKey="id"
                     isSectionRow={isSectionRow}
                     pagination={false}
                     rowClassName={getRowClassName}
