@@ -120,9 +120,9 @@ function CarouselTable<T extends BaseEntry>({
                 dataIndex: 'position',
                 key: 'position',
                 onCell: (record) => ('isSection' in record ? {colSpan: COLUMNS_COUNT} : {}),
-                render: (_, record) => ('isSection' in record
+                render: (_, record, index:number) => ('isSection' in record
                         ? (record.isSection === 'live' ? 'Currently live Carousel Entries' : 'Carousel backup entries')
-                        : record.position
+                        : index
                 ),
             },
             ...(isEditMode ? [{

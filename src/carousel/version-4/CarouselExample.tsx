@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import CarouselTable from './CarouselLibPage4';
-import AddEntryModal from "../../add-carousel/add-entry-modal.component";
+import AddEntryModal2 from "../../add-carousel-v2/add-entry-modal.component";
+import EditEntryModal from "../../add-carousel-v2/edit-entry-modal.component";
 
 // Define entry type
 export type CarouselEntry = {
@@ -43,7 +44,7 @@ const createInitialEntries = (): CarouselEntry[] => [
         expiryDateTime: '30-07-2025 18:01:08',
         country: 'Default',
         language: 'Default',
-        visible: true
+        visible: false
     },
     {
         id: '2',
@@ -61,151 +62,134 @@ const createInitialEntries = (): CarouselEntry[] => [
         language: 'Default',
         visible: true
     },
-    {
-        id: '3',
-        position: 3,
-        type: 'Parlay',
-        sport: 'Parlay: [treetop]',
-        league: 'summer Promo',
-        event: 'MUN vs LIV',
-        period: '1x2',
-        gradingUnits: 'Handicap',
-        marketType: 'Combo Boost',
-        header: 'Super Odds',
-        expiryDateTime: '30-07-2025 18:01:08',
-        country: 'Default',
-        language: 'Default',
-        visible: true,
-        // ==================== THÊM PARLAY DATA ====================
-        parlayData: [
-            {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'MUN Win', odds: 1.85},
-            {leg: 2, event: 'Real Madrid vs Barcelona', market: 'Over/Under', selection: 'Over 2.5', odds: 1.95},
-            {leg: 3, event: 'Liverpool vs Chelsea', market: 'Both Teams To Score', selection: 'Yes', odds: 1.75}
-        ]
-    },
-    {
-        id: '4',
-        position: 4,
-        type: 'Link/Freetext',
-        sport: 'AUSTRALIA: NSW',
-        league: '',
-        event: '',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Super Odds',
-        header: 'Super Odds',
-        expiryDateTime: '30-07-2025 18:01:08',
-        country: 'Default',
-        language: 'English',
-        visible: true
-    },
-    {
-        id: '5',
-        position: 5,
-        type: 'Single',
-        sport: 'Single',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: 'Corners',
-        marketType: 'Summer Promo',
-        header: 'Sumer Promo',
-        expiryDateTime: '30-07-2025 18:01:08',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '6',
-        position: 6,
-        type: 'Parlay',
-        sport: 'Temis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1x2',
-        gradingUnits: '',
-        marketType: 'Super Odds',
-        header: 'Doher',
-        expiryDateTime: '30-07-2025 18:01:08',
-        country: 'Default',
-        language: 'English',
-        visible: true,
-        // ==================== THÊM PARLAY DATA ====================
-        parlayData: [
-            {leg: 1, event: 'Golden State Warriors vs LA Lakers', market: 'Spread', selection: 'GSW -5.5', odds: 1.90},
-            {leg: 2, event: 'Boston Celtics vs Miami Heat', market: 'Total Points', selection: 'Over 218.5', odds: 1.87}
-        ]
-    },
-    {
-        id: '7',
-        position: 7,
-        type: 'Single TEST',
-        sport: 'Soccer',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: 'Corners',
-        marketType: 'Summer Promo',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:00',
-        country: 'Default',
-        language: 'Default',
-        visible: false
-    },
-    {
-        id: '8',
-        position: 8,
-        type: 'Link/Freetext',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Odds',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    },
-    {
-        id: '9',
-        position: 9,
-        type: 'Parlay',
-        sport: 'Single',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: 'Over Time',
-        gradingUnits: '1x2',
-        marketType: 'Super Odds',
-        header: 'Super Odds',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: false,
-        // ==================== THÊM PARLAY DATA ====================
-        parlayData: [
-            {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'Draw', odds: 3.20},
-            {leg: 2, event: 'Man City vs Arsenal', market: 'Asian Handicap', selection: 'Man City -1', odds: 2.10}
-        ]
-    },
-    // Các entry còn lại giữ nguyên (Single, Banner, Link/Freetext không cần parlayData)
-    ...Array.from({length: 8}, (_, i) => ({
-        id: String(10 + i),
-        position: 10 + i,
-        type: 'Single',
-        sport: 'Tennis',
-        league: 'NBA',
-        event: 'MUN vs LIV',
-        period: '1st Half',
-        gradingUnits: '',
-        marketType: 'Combo Boost',
-        header: 'Summer Promo',
-        expiryDateTime: '30-07-2025 18:01',
-        country: 'Default',
-        language: 'Default',
-        visible: true
-    }))
+    // {
+    //     id: '3',
+    //     position: 3,
+    //     type: 'Parlay',
+    //     sport: 'Parlay: [treetop]',
+    //     league: 'summer Promo',
+    //     event: 'MUN vs LIV',
+    //     period: '1x2',
+    //     gradingUnits: 'Handicap',
+    //     marketType: 'Combo Boost',
+    //     header: 'Super Odds',
+    //     expiryDateTime: '30-07-2025 18:01:08',
+    //     country: 'Default',
+    //     language: 'Default',
+    //     visible: true,
+    //     // ==================== THÊM PARLAY DATA ====================
+    //     parlayData: [
+    //         {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'MUN Win', odds: 1.85},
+    //         {leg: 2, event: 'Real Madrid vs Barcelona', market: 'Over/Under', selection: 'Over 2.5', odds: 1.95},
+    //         {leg: 3, event: 'Liverpool vs Chelsea', market: 'Both Teams To Score', selection: 'Yes', odds: 1.75}
+    //     ]
+    // },
+    // {
+    //     id: '4',
+    //     position: 4,
+    //     type: 'Link/Freetext',
+    //     sport: 'AUSTRALIA: NSW',
+    //     league: '',
+    //     event: '',
+    //     period: '1st Half',
+    //     gradingUnits: '',
+    //     marketType: 'Super Odds',
+    //     header: 'Super Odds',
+    //     expiryDateTime: '30-07-2025 18:01:08',
+    //     country: 'Default',
+    //     language: 'English',
+    //     visible: true
+    // },
+    // {
+    //     id: '5',
+    //     position: 5,
+    //     type: 'Single',
+    //     sport: 'Single',
+    //     league: 'NBA',
+    //     event: 'MUN vs LIV',
+    //     period: '1st Half',
+    //     gradingUnits: 'Corners',
+    //     marketType: 'Summer Promo',
+    //     header: 'Sumer Promo',
+    //     expiryDateTime: '30-07-2025 18:01:08',
+    //     country: 'Default',
+    //     language: 'Default',
+    //     visible: true
+    // },
+    // {
+    //     id: '6',
+    //     position: 6,
+    //     type: 'Parlay',
+    //     sport: 'Temis',
+    //     league: 'NBA',
+    //     event: 'MUN vs LIV',
+    //     period: '1x2',
+    //     gradingUnits: '',
+    //     marketType: 'Super Odds',
+    //     header: 'Doher',
+    //     expiryDateTime: '30-07-2025 18:01:08',
+    //     country: 'Default',
+    //     language: 'English',
+    //     visible: true,
+    //     // ==================== THÊM PARLAY DATA ====================
+    //     parlayData: [
+    //         {leg: 1, event: 'Golden State Warriors vs LA Lakers', market: 'Spread', selection: 'GSW -5.5', odds: 1.90},
+    //         {leg: 2, event: 'Boston Celtics vs Miami Heat', market: 'Total Points', selection: 'Over 218.5', odds: 1.87}
+    //     ]
+    // },
+    // {
+    //     id: '7',
+    //     position: 7,
+    //     type: 'Single TEST',
+    //     sport: 'Soccer',
+    //     league: 'NBA',
+    //     event: 'MUN vs LIV',
+    //     period: '1st Half',
+    //     gradingUnits: 'Corners',
+    //     marketType: 'Summer Promo',
+    //     header: 'Summer Promo',
+    //     expiryDateTime: '30-07-2025 18:00',
+    //     country: 'Default',
+    //     language: 'Default',
+    //     visible: false
+    // },
+    // {
+    //     id: '8',
+    //     position: 8,
+    //     type: 'Link/Freetext',
+    //     sport: 'Tennis',
+    //     league: 'NBA',
+    //     event: 'MUN vs LIV',
+    //     period: '1st Half',
+    //     gradingUnits: '',
+    //     marketType: 'Combo Boost',
+    //     header: 'Summer Odds',
+    //     expiryDateTime: '30-07-2025 18:01',
+    //     country: 'Default',
+    //     language: 'Default',
+    //     visible: true
+    // },
+    // {
+    //     id: '9',
+    //     position: 9,
+    //     type: 'Parlay',
+    //     sport: 'Single',
+    //     league: 'NBA',
+    //     event: 'MUN vs LIV',
+    //     period: 'Over Time',
+    //     gradingUnits: '1x2',
+    //     marketType: 'Super Odds',
+    //     header: 'Super Odds',
+    //     expiryDateTime: '30-07-2025 18:01',
+    //     country: 'Default',
+    //     language: 'Default',
+    //     visible: false,
+    //     // ==================== THÊM PARLAY DATA ====================
+    //     parlayData: [
+    //         {leg: 1, event: 'MUN vs LIV', market: '1x2', selection: 'Draw', odds: 3.20},
+    //         {leg: 2, event: 'Man City vs Arsenal', market: 'Asian Handicap', selection: 'Man City -1', odds: 2.10}
+    //     ]
+    // },
 ];
 
 
@@ -216,6 +200,13 @@ const MyPage: React.FC = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
 
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState<any>(null);
+
+    const openEdit = (item: any) => {
+        setEditingItem(item);
+        setIsEditOpen(true);
+    };
 
     return <>
         <CarouselTable
@@ -232,12 +223,26 @@ const MyPage: React.FC = () => {
         />
 
         <br/>
-        <AddEntryModal
+        <AddEntryModal2
             isOpen={modalOpen}
             onClose={() => setModalOpen(false)}
             onSave={(data) => {
                 console.log('Data lưu:', data);
                 // Gọi API ở đây
+            }}
+        />
+
+        <EditEntryModal
+            isOpen={true}
+            initialData={editingItem}
+            onClose={() => {
+                setIsEditOpen(false);
+                setEditingItem(null);
+            }}
+            onSave={(data) => {
+                console.log("Update:", data);
+                // Gọi API update ở đây
+                setIsEditOpen(false);
             }}
         />
     </>;
