@@ -373,9 +373,9 @@ function CarouselTable<T extends BaseEntry>({
         const draggedEntry = sorted[oldIndex];
 
         // Rule: Invisible entries cannot go to live zone
-        if (!draggedEntry.visible && newIndex < liveCount) {
-            return;
-        }
+        // if (!draggedEntry.visible && newIndex < liveCount) {
+        //     return;
+        // }
 
         let newSorted = arrayMove(sorted, oldIndex, newIndex);
 

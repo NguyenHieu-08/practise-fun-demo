@@ -1,0 +1,415 @@
+// ============================================================
+// VARIABLES
+// ============================================================
+$blue-header   : #2563a8;
+$blue-primary  : #1a6dbf;
+$blue-dark     : #155a99;
+$blue-focus    : #3b82f6;
+$blue-light    : #dbeafe;
+
+$gray-50 : #f8f9fa;
+$gray-100: #f1f3f5;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-700: #374151;
+
+$green-on : #22c55e;
+$red      : #ef4444;
+$red-dark : #dc2626;
+
+$radius-sm: 4px;
+$radius-md: 6px;
+$radius-lg: 10px;
+
+// ============================================================
+// OVERLAY
+// ============================================================
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 16px;
+}
+
+// ============================================================
+// MODAL BOX
+// ============================================================
+.modal-box {
+    background: $gray-100;
+    border-radius: $radius-lg;
+    width: 100%;
+    max-width: 600px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.28);
+}
+
+// ============================================================
+// MODAL HEADER
+// ============================================================
+.modal-header {
+    background: $blue-header;
+    color: #fff;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+
+    h2 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .modal-close {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 2px 6px;
+        border-radius: $radius-sm;
+        opacity: 0.8;
+        transition: opacity .15s;
+
+        &:hover { opacity: 1; }
+    }
+}
+
+// ============================================================
+// MODAL BODY
+// ============================================================
+.modal-body {
+    padding: 16px 18px;
+    overflow-y: auto;
+    flex: 1;
+    background: $gray-100;
+
+    &::-webkit-scrollbar { width: 5px; }
+    &::-webkit-scrollbar-track { background: $gray-200; border-radius: 3px; }
+    &::-webkit-scrollbar-thumb { background: $gray-400; border-radius: 3px; }
+}
+
+// ============================================================
+// MODAL FOOTER
+// ============================================================
+.modal-footer {
+    background: $gray-100;
+    border-top: 1px solid $gray-200;
+    padding: 12px 18px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+
+    button {
+        padding: 8px 24px;
+        border-radius: $radius-md;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background .15s, border-color .15s;
+        border: 1px solid transparent;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        color: $gray-700;
+        border-color: $gray-300;
+
+        &:hover { background: $gray-100; border-color: $gray-400; }
+    }
+
+    .btn-save {
+        background: $blue-primary;
+        color: #fff;
+        border-color: $blue-primary;
+
+        &:hover { background: $blue-dark; border-color: $blue-dark; }
+    }
+}
+
+// ============================================================
+// SHARED — label
+// ============================================================
+.form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: $gray-700;
+    margin-bottom: 4px;
+
+    .required { color: $red; margin-left: 1px; }
+}
+
+// ============================================================
+// SHARED — selects & inputs (placeholder class)
+// ============================================================
+%input-base {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid $gray-300;
+    border-radius: $radius-sm;
+    font-size: 13px;
+    color: $gray-700;
+    background: #fff;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color .15s, box-shadow .15s;
+
+    &:focus {
+        border-color: $blue-focus;
+        box-shadow: 0 0 0 2px rgba($blue-focus, 0.18);
+    }
+
+    &.disabled,
+    &:disabled {
+        background: $gray-100;
+        color: $gray-400;
+        cursor: not-allowed;
+        border-color: $gray-200;
+    }
+
+    &::placeholder { color: $gray-400; }
+}
+
+.select-full    { @extend %input-base; }
+.select-compact { @extend %input-base; width: auto; min-width: 0; flex: 1; }
+
+input[type="text"],
+input[type="datetime-local"] {
+    @extend %input-base;
+}
+
+// ============================================================
+// HOT PARLAY — top-level rows (Carousel / Header / Expiry+Visible)
+// ============================================================
+.field-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: flex-end;
+
+    .field-full  { flex: 1; }
+    .field-half  { flex: 1; }
+    .field-visible {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+}
+
+// ============================================================
+// SINGLE MARKET EVENT — 2-col rows
+// ============================================================
+.form-row {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+
+    // basic half column
+    .field-col {
+        flex: 1;
+        min-width: 0;
+
+        // full-width override
+        &--full { flex: 0 0 100%; }
+
+        // inline sub-group (Sport+Expiry, League+Visible)
+        &--inline {
+            .field-inline-group {
+                display: flex;
+                gap: 8px;
+                align-items: flex-end;
+
+                // narrow labelled select (Sport, League)
+                .field-inline-label {
+                    display: flex;
+                    flex-direction: column;
+                    flex: 0 0 auto;
+
+                    .select-compact { width: 80px; }
+                }
+
+                // expiry stretches remaining space
+                .field-inline-expiry { flex: 1; min-width: 0; }
+
+                // second label group (Event, Period) — stretch
+                .field-inline-label + .field-inline-label {
+                    flex: 1;
+                    .select-compact { width: 100%; }
+                }
+            }
+        }
+    }
+
+    &--single .field-col--full { flex: 0 0 100%; }
+}
+
+// Radio group (Match / Outright)
+.radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    padding-top: 6px;
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        cursor: pointer;
+
+        input[type="radio"] {
+            accent-color: $blue-primary;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+    }
+}
+
+// ============================================================
+// HOT PARLAY — LEG CARD
+// ============================================================
+.leg-card {
+    background: #fff;
+    border: 1px solid $gray-200;
+    border-radius: $radius-md;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+
+    .leg-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+
+        .leg-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: $gray-700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            .leg-info {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: $blue-light;
+                color: $blue-primary;
+                font-size: 11px;
+                font-weight: 600;
+                font-style: italic;
+            }
+        }
+
+        .btn-remove-leg {
+            background: transparent;
+            border: none;
+            color: $red;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 6px;
+            border-radius: $radius-sm;
+            transition: background .15s;
+
+            &:hover { background: rgba($red, 0.08); color: $red-dark; }
+        }
+    }
+
+    .leg-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 10px;
+
+        &:last-child { margin-bottom: 0; }
+
+        .leg-field {
+            flex: 1;
+            min-width: 0;
+
+            &--full { flex: 0 0 100%; }
+        }
+    }
+}
+
+// ============================================================
+// ADD LEG BUTTON
+// ============================================================
+.btn-add-leg {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 7px 14px;
+    border: 1px solid $gray-300;
+    border-radius: $radius-sm;
+    background: #fff;
+    color: $gray-700;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+
+    &:hover {
+        background: $gray-50;
+        border-color: $gray-400;
+    }
+}
+
+// ============================================================
+// VISIBLE TOGGLE
+// ============================================================
+.visible-toggle {
+    display: flex;
+    flex-direction: column;
+
+    .form-label { margin-bottom: 6px; }
+
+    .toggle-track {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: 44px;
+        height: 24px;
+        border-radius: 12px;
+        background: $gray-300;
+        cursor: pointer;
+        transition: background .2s;
+
+        &.is-on { background: $green-on; }
+
+        .toggle-thumb {
+            position: absolute;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,.2);
+            transition: left .2s;
+
+            &.is-on { left: calc(100% - 21px); }
+        }
+    }
+}

@@ -6,8 +6,9 @@ import SingleMarketEventForm from "./single-market-event-form.component";
 import ExpiryDateTimeInput from "./shards/expiry-datetime-input.component";
 import VisibleToggle from "./shards/visible-toggle.component";
 import HotParlayForm from "./hot-parlay-form.component";
+import "./modal-entry.scss";
 
-const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
+const AddEntryModal2 = ({isOpen, onClose, onSave}: AddEntryModalProps) => {
     const [carouselType, setCarouselType] = useState<CarouselType>('single_market_event');
     const [header, setHeader] = useState('');
     const [expiryDateTime, setExpiryDateTime] = useState('2025-07-30T18:07');
@@ -24,7 +25,7 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
 
     // Hot Parlay state
     const [legs, setLegs] = useState<Leg[]>([
-        { id: 'leg-1', sport: '', league: '', event: '', period: '', gradingUnit: '', marketType: '', participant: '' },
+        {id: 'leg-1', sport: '', league: '', event: '', period: '', gradingUnit: '', marketType: '', participant: ''},
     ]);
 
     const addLeg = () => {
@@ -41,7 +42,7 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
     };
 
     const updateLeg = (id: string, field: keyof Omit<Leg, 'id'>, value: string) => {
-        setLegs(prev => prev.map(leg => leg.id === id ? { ...leg, [field]: value } : leg));
+        setLegs(prev => prev.map(leg => leg.id === id ? {...leg, [field]: value} : leg));
     };
 
     const validateForm = (): boolean => {
@@ -65,8 +66,7 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
             if (!marketTypeSingle || marketTypeSingle === 'Select Market Type') {
                 errors.push("Market Type is required");
             }
-        }
-        else {
+        } else {
             if (legs.length === 0) errors.push("At least one leg is required");
         }
 
@@ -103,8 +103,7 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
                     gradingUnitSingle,
                 }),
             };
-        }
-        else {
+        } else {
             return {
                 ...basePayload,
                 type: 'hot_parlay',
@@ -132,37 +131,24 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="w-[820px] bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div className="modal-add-entry">
+            <div className="modal-content">
                 {/* Header */}
-                <div className="bg-blue-600 px-6 py-4 flex items-center justify-between text-white">
+                <div className="modal-header">
                     <h2 className="text-xl font-semibold">Add Entry</h2>
                     <button onClick={onClose} className="text-3xl leading-none hover:text-blue-200">×</button>
                 </div>
 
-                <div className="p-6 bg-gray-100 max-h-[70vh] overflow-auto">
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-                        <CarouselTypeSelect value={carouselType} onChange={setCarouselType} />
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Carousel Type <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                value={carouselType}
-                                onChange={(e) => setCarouselType(e.target.value as CarouselType)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
-                            >
-                                <option value="single_market_event">Single Market Event</option>
-                                <option value="hot_parlay">Hot Parlay</option>
-                            </select>
-                        </div>
+                <div className="modal-body">
+                    <div className="form-grid">
+                        <CarouselTypeSelect value={carouselType} onChange={setCarouselType}/>
 
                         {/* Header - thay đổi vị trí theo type */}
                         {carouselType === 'single_market_event' ? (
-                            <HeaderInput value={header} onChange={setHeader} />
+                            <HeaderInput value={header} onChange={setHeader}/>
                         ) : (
                             <div className="col-span-2">
-                                <HeaderInput value={header} onChange={setHeader} />
+                                <HeaderInput value={header} onChange={setHeader}/>
                             </div>
                         )}
 
@@ -179,12 +165,12 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
                             />
                         )}
 
-                        {/* ==================== HOT PARLAY ==================== */}
+                        {/*==================== HOT PARLAY ====================*/}
                         {carouselType === 'hot_parlay' && (
                             <div className="col-span-2">
                                 <div className="grid grid-cols-2 gap-8 mb-6">
-                                    <ExpiryDateTimeInput value={expiryDateTime} onChange={setExpiryDateTime} />
-                                    <VisibleToggle value={visible} onChange={setVisible} />
+                                    <ExpiryDateTimeInput value={expiryDateTime} onChange={setExpiryDateTime}/>
+                                    <VisibleToggle value={visible} onChange={setVisible}/>
                                 </div>
 
                                 <HotParlayForm
@@ -195,13 +181,15 @@ const AddEntryModal2 = ({ isOpen, onClose, onSave }: AddEntryModalProps) => {
                                 />
                             </div>
                         )}
+
                     </div>
+
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-5 bg-gray-100 border-t flex justify-end gap-3">
-                    <button onClick={onClose} className="px-8 py-3 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-xl font-medium">Cancel</button>
-                    <button onClick={handleSave} className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium">Save</button>
+                <div className="modal-footer">
+                    <button onClick={onClose} className="cancel">Cancel</button>
+                    <button onClick={handleSave} className="save">Save</button>
                 </div>
             </div>
         </div>

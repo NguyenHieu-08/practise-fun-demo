@@ -1,0 +1,414 @@
+// =============================================
+// VARIABLES
+// =============================================
+$blue-primary: #1a6dbf;
+$blue-header: #1e6fb5;
+$blue-dark: #155a99;
+$blue-light: #e8f0fb;
+$blue-focus: #3b82f6;
+
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-700: #374151;
+
+$green-500: #22c55e;
+$green-600: #16a34a;
+$green-50: #f0fdf4;
+
+$red-500: #ef4444;
+
+$border-radius-sm: 6px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+
+// =============================================
+// MODAL OVERLAY
+// =============================================
+.modal-add-entry {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.45);
+  padding: 16px;
+
+  // =============================================
+  // MODAL CONTENT WRAPPER
+  // =============================================
+  .modal-content {
+    background: $gray-100;
+    border-radius: $border-radius-xl;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  // =============================================
+  // MODAL HEADER
+  // =============================================
+  .modal-header {
+    background: $blue-header;
+    color: #fff;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: $border-radius-xl $border-radius-xl 0 0;
+    flex-shrink: 0;
+
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 0.01em;
+    }
+
+    button {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 4px;
+      opacity: 0.85;
+      transition: opacity 0.15s;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  // =============================================
+  // MODAL BODY
+  // =============================================
+  .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    background: $gray-100;
+
+    // Scrollbar styling
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    &::-webkit-scrollbar-track {
+      background: $gray-200;
+      border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: $gray-400;
+      border-radius: 3px;
+    }
+  }
+
+  // =============================================
+  // FORM GRID (top-level 2-col layout)
+  // =============================================
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 20px;
+
+    // Full-width children
+    .col-span-2 {
+      grid-column: 1 / -1;
+    }
+  }
+
+  // =============================================
+  // SHARED FORM FIELD STYLES
+  // =============================================
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: $gray-700;
+    margin-bottom: 5px;
+
+    span.text-red-500 {
+      color: $red-500;
+    }
+  }
+
+  select,
+  input[type="text"],
+  input[type="datetime-local"] {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid $gray-300;
+    border-radius: $border-radius-md;
+    font-size: 13px;
+    color: $gray-700;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+
+    &:focus {
+      border-color: $blue-focus;
+      box-shadow: 0 0 0 2px rgba($blue-focus, 0.2);
+    }
+
+    &:disabled {
+      background: $gray-100;
+      color: $gray-400;
+      cursor: not-allowed;
+      border-color: $gray-200;
+    }
+
+    &::placeholder {
+      color: $gray-400;
+    }
+  }
+
+  // =============================================
+  // RADIO BUTTONS (Match / Outright)
+  // =============================================
+  .flex.gap-8 {
+    display: flex;
+    gap: 32px;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 400;
+      cursor: pointer;
+      margin-bottom: 0;
+
+      input[type="radio"] {
+        accent-color: $blue-primary;
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+      }
+    }
+  }
+
+  // =============================================
+  // VISIBLE TOGGLE
+  // =============================================
+  .visible-toggle-wrapper {
+    display: flex;
+    flex-direction: column;
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: $gray-700;
+      margin-bottom: 5px;
+    }
+
+    .toggle-track {
+      display: inline-flex;
+      align-items: center;
+      width: 48px;
+      height: 26px;
+      border-radius: 13px;
+      background: $gray-300;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &.on {
+        background: $green-500;
+      }
+
+      .toggle-thumb {
+        position: absolute;
+        left: 3px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: left 0.2s;
+
+        &.on {
+          left: calc(100% - 23px);
+        }
+      }
+    }
+  }
+
+  // =============================================
+  // HOT PARLAY — LEG CARD
+  // =============================================
+  .leg-card {
+    background: #fff;
+    border: 1px solid $gray-300;
+    border-radius: $border-radius-xl;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+
+    .leg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+
+      .leg-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        span.leg-label {
+          font-weight: 600;
+          color: $blue-primary;
+          font-size: 14px;
+        }
+
+        span.leg-info-badge {
+          font-size: 11px;
+          background: $blue-light;
+          color: $blue-primary;
+          border-radius: 50%;
+          width: 18px;
+          height: 18px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 600;
+        }
+      }
+
+      .remove-leg-btn {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: $red-500;
+        background: transparent;
+        border: none;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: $border-radius-sm;
+        transition: background 0.15s, color 0.15s;
+
+        &:hover {
+          background: rgba($red-500, 0.08);
+          color: darken($red-500, 10%);
+        }
+      }
+    }
+
+    .leg-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 18px;
+
+      .col-span-2 {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  // =============================================
+  // ADD LEG BUTTON
+  // =============================================
+  .add-leg-btn {
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed $green-500;
+    background: transparent;
+    color: $green-600;
+    border-radius: $border-radius-xl;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+
+    span.plus-icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    &:hover {
+      background: $green-50;
+    }
+  }
+
+  // =============================================
+  // MODAL FOOTER
+  // =============================================
+  .modal-footer {
+    background: $gray-100;
+    border-top: 1px solid $gray-200;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+    border-radius: 0 0 $border-radius-xl $border-radius-xl;
+
+    button {
+      padding: 9px 28px;
+      border-radius: $border-radius-md;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      border: 1px solid transparent;
+
+      &.cancel {
+        background: #fff;
+        color: $gray-700;
+        border-color: $gray-300;
+
+        &:hover {
+          background: $gray-100;
+          border-color: $gray-400;
+        }
+      }
+
+      &.save {
+        background: $blue-primary;
+        color: #fff;
+        border-color: $blue-primary;
+
+        &:hover {
+          background: $blue-dark;
+          border-color: $blue-dark;
+        }
+      }
+    }
+  }
+}
+
+// =============================================
+// UTILITY — nested grid helpers used inline
+// =============================================
+.grid {
+  display: grid;
+
+  &.grid-cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &.gap-8 { gap: 32px; }
+  &.gap-x-6 { column-gap: 24px; }
+  &.gap-y-5 { row-gap: 20px; }
+}
+
+.mb-6 { margin-bottom: 24px; }
+.mb-8 { margin-bottom: 32px; }
