@@ -24,6 +24,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "install-library": "npm i --legacy-peer-deps",
     "start": "webpack serve --config webpack.config.js",
     "build": "webpack --config webpack.config.js --mode production"
   },

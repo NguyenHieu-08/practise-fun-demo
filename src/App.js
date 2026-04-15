@@ -1,5 +1,5 @@
 import React from 'react';
-import MyPage from "./carousel/version-4/CarouselExample";
+import MyPage from "./carousel/version-5/CarouselExample";
 
 function App() {
     return <>
