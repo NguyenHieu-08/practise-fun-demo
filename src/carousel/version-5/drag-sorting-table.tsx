@@ -1,11 +1,13 @@
-import React, {useMemo} from 'react';
-import type {DragEndEvent} from '@dnd-kit/core';
-import {DndContext} from '@dnd-kit/core';
-import type {SyntheticListenerMap} from '@dnd-kit/core/dist/hooks/utilities';
-import {restrictToVerticalAxis} from '@dnd-kit/modifiers';
-import {SortableContext, useSortable, verticalListSortingStrategy} from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
-import {Empty, Table} from 'antd';
+import React, { useCallback, useMemo, useState, useRef } from 'react';
+import type { DragEndEvent } from '@dnd-kit/core';
+import { DndContext } from '@dnd-kit/core';
+import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Empty, Table } from 'antd';
+import { Resizable } from 'react-resizable';
+import type { ResizeCallbackData } from 'react-resizable';
 
 export interface RowContextProps {
     setActivatorNodeRef?: (element: HTMLElement | null) => void;
@@ -32,9 +34,33 @@ interface DragSortingTableProps<T extends { id: string }> {
     [key: string]: any;
 }
 
+// ==================== RESIZABLE HEADER ====================
+
+const ResizableTitle = (props: any) => {
+    const { onResize, width, resizable = true, ...restProps } = props;
+
+    if (!resizable || width === undefined || width === null) {
+        return <th {...restProps} style={{ cursor: 'default', ...restProps.style }} />;
+    }
+
+    return (
+        <Resizable
+            width={width}
+            height={0}
+            handle={<span className="react-resizable-handle" onClick={(e) => e.stopPropagation()} />}
+            onResize={onResize}
+            draggableOpts={{ enableUserSelectHack: false }}
+        >
+            <th {...restProps} />
+        </Resizable>
+    );
+};
+
+// ==================== MAIN COMPONENT ====================
+
 const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps<T>) => {
     const {
-        columns,
+        columns: originalColumns,
         dataSource,
         sortableIds,
         onDragEnd,
@@ -46,6 +72,63 @@ const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps
         ...rest
     } = props;
 
+    const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+    const liveWidthsRef = useRef<Record<string, number>>({});   // Dùng ref để preview mượt
+
+    // Handle resize - tối ưu cao nhất
+    const handleResize = useCallback((key: string, minWidth: number = 60) => {
+        return (_: any, { size }: ResizeCallbackData) => {
+            // Cập nhật ref ngay lập tức để preview mượt (không gây re-render)
+            liveWidthsRef.current[key] = Math.max(minWidth, Math.round(size.width));
+
+            // Chỉ update state sau một khoảng thời gian ngắn (debounce nhẹ)
+            if (!window.requestIdleCallback) {
+                setTimeout(() => {
+                    setColumnWidths(prev => ({ ...prev, [key]: liveWidthsRef.current[key] }));
+                }, 8);
+            } else {
+                requestIdleCallback(() => {
+                    setColumnWidths(prev => ({ ...prev, [key]: liveWidthsRef.current[key] }));
+                });
+            }
+        };
+    }, []);
+
+    // Tạo columns
+    const columns = useMemo(() => {
+        return originalColumns.map((col: any) => {
+            const key = col.key || col.dataIndex;
+            const minW = col.minWidth || 60;
+            const isResizable = col.resizable !== false;
+
+            // Sử dụng width từ ref trước để preview nhanh
+            const currentWidth = liveWidthsRef.current[key] ?? (columnWidths[key] ?? col.width);
+
+            return {
+                ...col,
+                width: currentWidth,
+
+                onHeaderCell: (columnFromAntd: any) => {
+                    const baseProps = typeof col.onHeaderCell === 'function'
+                        ? col.onHeaderCell(columnFromAntd) || {}
+                        : {};
+
+                    if (!isResizable) {
+                        return { ...baseProps, width: currentWidth, resizable: false };
+                    }
+
+                    return {
+                        ...baseProps,
+                        width: currentWidth,
+                        onResize: handleResize(key, minW),
+                        resizable: true,
+                    };
+                },
+            };
+        });
+    }, [originalColumns, columnWidths, handleResize]);
+
+    // Row component
     const Row: React.FC<RowProps> = (rowProps) => {
         const record = rowProps.record as T | undefined;
         const rowId = rowProps['data-row-key'];
@@ -59,19 +142,16 @@ const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps
             transform,
             transition,
             isDragging,
-        } = useSortable({id: rowId, disabled});
+        } = useSortable({ id: rowId, disabled });
 
         const style: React.CSSProperties = {
             ...rowProps.style,
             transform: CSS.Translate.toString(transform),
             transition,
-            ...(isDragging ? {position: 'relative', zIndex: 9999} : {}),
+            ...(isDragging ? { position: 'relative', zIndex: 999 } : {}),
         };
 
-        const contextValue = useMemo<RowContextProps>(
-            () => ({setActivatorNodeRef, listeners}),
-            [setActivatorNodeRef, listeners],
-        );
+        const contextValue = useMemo(() => ({ setActivatorNodeRef, listeners }), [setActivatorNodeRef, listeners]);
 
         return (
             <RowContext.Provider value={contextValue}>
@@ -97,11 +177,14 @@ const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps
             <SortableContext items={sortableIds} strategy={verticalListSortingStrategy} children={undefined}>
                 <Table<T>
                     rowKey={rowKey}
-                    components={{body: {row: Row}}}
+                    components={{
+                        header: { cell: ResizableTitle },
+                        body: { row: Row },
+                    }}
                     columns={columns}
                     dataSource={dataSource}
-                    // locale={{ emptyText: <div className={"custom-no-data"}>No data</div> }}
-                    locale={{ emptyText: <Empty description="No data" image={null}/> }}
+                    locale={{ emptyText: <Empty description="No data" image={null} /> }}
+                    scroll={{ x: 'max-content' }}
                     {...rest}
                 />
             </SortableContext>

@@ -249,3 +249,57 @@
 .ant-empty-image {
   display: none;
 }
+
+///* CSS cho resize handle */
+//.react-resizable-handle {
+//  position: absolute;
+//  right: -5px;
+//  bottom: 0;
+//  z-index: 1;
+//  width: 10px;           /* vùng kéo rộng hơn để dễ kéo */
+//  height: 100%;
+//  cursor: col-resize;
+//  background: transparent;
+//}
+//
+//.react-resizable-handle:hover {
+//  background: #1890ff;   /* hiện màu xanh khi hover */
+//  opacity: 0.6;
+//}
+//
+///* Đảm bảo Resizable wrapper không bị che */
+//.react-resizable {
+//  position: relative;
+//  background-clip: padding-box;
+//}
+//
+///* Bắt buộc table có scroll ngang */
+//.carousel-table th {
+//  position: relative;
+//}
+
+
+.react-resizable-handle {
+  position: absolute;
+  right: -6px;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  cursor: col-resize;
+  z-index: 10;
+  background: transparent;
+}
+
+.react-resizable-handle:hover,
+.react-resizable-handle:active {
+  background: #1890ff;
+  opacity: 0.75;
+}
+
+th[resizable="false"] .react-resizable-handle {
+  display: none;                    /* Ẩn hoàn toàn handle */
+}
+
+th[resizable="false"] {
+  cursor: default !important;
+}

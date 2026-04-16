@@ -195,8 +195,8 @@ const createInitialEntries = (): CarouselEntry[] => [
 const MyPage: React.FC = () => {
     // const [entries, setEntries] = useState<CarouselEntry[]>([createInitialEntries()?.[0]]);
     // const [entries, setEntries] = useState<CarouselEntry[]>([...createInitialEntries()].slice(0,2));
-    const [entries, setEntries] = useState<CarouselEntry[]>([]);
-    // const [entries, setEntries] = useState<CarouselEntry[]>(createInitialEntries);
+    // const [entries, setEntries] = useState<CarouselEntry[]>([]);
+    const [entries, setEntries] = useState<CarouselEntry[]>(createInitialEntries);
     const [isEditMode, setIsEditMode] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
 

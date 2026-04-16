@@ -18,6 +18,7 @@ import {
 } from './CarouselConstants';
 
 import {CarouselEntry} from "./CarouselExample";
+import {ColumnType} from "antd/es/table";
 
 // ===================== TYPES =====================
 
@@ -56,6 +57,14 @@ export interface CarouselTableProps<T extends BaseEntry> {
     isEditMode?: boolean;
     onEditClick?: (value: boolean) => void;
 }
+
+// Định nghĩa type cho column có hỗ trợ resizable
+interface ResizableColumnType<RecordType> extends ColumnType<RecordType> {
+    resizable?: boolean;
+    minWidth?: number;
+}
+
+type ResizableTableColumnsType<RecordType> = ResizableColumnType<RecordType>[];
 
 // ===================== HELPERS =====================
 
@@ -275,11 +284,13 @@ function CarouselTable5<T extends BaseEntry>({
         let newSorted = arrayMove(finalEntries, oldIndex, newIndex) as T[];
 
         // Rule: When dragging from live to backup, promote first visible backup
-        const isDraggingToBackup =
-            draggedEntry.position <= liveCount && newIndex + 1 > liveCount;
+        const wasInLive = draggedEntry.position <= liveCount;
+        const nowInBackup = newIndex >= liveCount;   // sau khi move
+        const isDraggingToBackup = wasInLive && nowInBackup;  // draggedEntry.position <= liveCount && newIndex + 1 > liveCount;
+
 
         if (isDraggingToBackup) {
-            const backupVisible = newSorted
+            const backupVisible = finalEntries
                 .slice(liveCount)
                 .find((e) => e.visible);
 
@@ -307,13 +318,15 @@ function CarouselTable5<T extends BaseEntry>({
     }, [finalEntries, onEntriesChange, markDirty]);
 
     // ===================== COLUMNS DEFINITION =====================
-
-    const columns: TableColumnsType<TableRecord<CarouselEntry>> = useMemo(() => {
-        const baseColumns: TableColumnsType<TableRecord<CarouselEntry>> = [
+    // TODO: Change resizable columns to use `useColumns` hook
+    const columns: ResizableTableColumnsType<TableRecord<CarouselEntry>> = useMemo(() => {
+        const baseColumns: ResizableTableColumnsType<TableRecord<CarouselEntry>> = [
             {
                 title: 'No',
                 dataIndex: 'position',
                 key: 'id',
+                width: 50,
+                resizable: false,
                 onCell: (record) => (isSectionRow(record) ? {colSpan: COLUMNS_COUNT} : {}),
                 render: (_, record, index) => {
                     if ('isSection' in record) {
@@ -340,6 +353,7 @@ function CarouselTable5<T extends BaseEntry>({
                         title: 'Drag',
                         key: 'drag',
                         width: 60,
+                        resizable: false,
                         onCell: (record) => (isSectionRow(record) ? {colSpan: 0} : {}),
                         render: (_, record) =>
                             isSectionRow(record) ? null : <DragHandle id={record.id}/>,
@@ -352,6 +366,8 @@ function CarouselTable5<T extends BaseEntry>({
                 title: 'Type',
                 dataIndex: 'type',
                 key: 'type',
+                width: 100,
+                minWidth: 90,
                 onCell: (record) => (isSectionRow(record) ? {colSpan: 0} : {}),
                 render: (_, record) => {
                     if (isSectionRow(record)) return null;
@@ -399,39 +415,44 @@ function CarouselTable5<T extends BaseEntry>({
             },
 
             // Other data columns
-            {title: 'Sport', dataIndex: 'sport', key: 'sport', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'League', dataIndex: 'league', key: 'league', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'Event', dataIndex: 'event', key: 'event', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'Period', dataIndex: 'period', key: 'period', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Sport', width: 100, minWidth: 90, dataIndex: 'sport', key: 'sport', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'League', width: 100, minWidth: 90, dataIndex: 'league', key: 'league', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Event', width: 100, minWidth: 90, dataIndex: 'event', key: 'event', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Period', width: 100, minWidth: 90, dataIndex: 'period', key: 'period', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
             {
                 title: 'Grading Units',
                 dataIndex: 'gradingUnits',
                 key: 'gradingUnits',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
             },
             {
                 title: 'Market Type',
                 dataIndex: 'marketType',
                 key: 'marketType',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
             },
-            {title: 'Header', dataIndex: 'header', key: 'header', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Header',width: 100, minWidth: 90, dataIndex: 'header', key: 'header', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
             {
                 title: 'Expiry Date/Time',
                 dataIndex: 'expiryDateTime',
                 key: 'expiryDateTime',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
             },
             {
                 title: 'Country',
                 dataIndex: 'country',
                 key: 'country',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
             },
             {
                 title: 'Language',
                 dataIndex: 'language',
                 key: 'language',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
             },
 
@@ -439,6 +460,7 @@ function CarouselTable5<T extends BaseEntry>({
             {
                 title: 'Visible',
                 key: 'visible',
+                width: 100, minWidth: 90,
                 onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {}),
                 render: (_, record) =>
                     isSectionRow(record) ? null : (
@@ -457,6 +479,7 @@ function CarouselTable5<T extends BaseEntry>({
                     {
                         title: 'Actions',
                         key: 'actions',
+                        width: 120, minWidth: 110,
                         onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {}),
                         render: (_, record) =>
                             isSectionRow(record) ? null : (
