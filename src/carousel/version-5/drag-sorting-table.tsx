@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState, useRef } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { DndContext } from '@dnd-kit/core';
 import type { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import {restrictToVerticalAxis, restrictToParentElement, restrictToFirstScrollableAncestor} from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Empty, Table } from 'antd';
@@ -168,7 +168,7 @@ const DragSortingTable = <T extends { id: string }>(props: DragSortingTableProps
 
     return (
         <DndContext
-            modifiers={[restrictToVerticalAxis]}
+            modifiers={[restrictToVerticalAxis,restrictToFirstScrollableAncestor, restrictToParentElement]}
             onDragStart={onDragStart}
             onDragOver={onDragOver}
             onDragCancel={onDragCancel}

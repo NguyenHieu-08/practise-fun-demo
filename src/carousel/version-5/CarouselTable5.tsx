@@ -78,8 +78,30 @@ function reindexPositions<T extends BaseEntry>(entries: T[] | undefined | null):
     return entries.map((item, idx) => ({...item, position: idx + 1}));
 }
 
-function isSectionRow<T extends BaseEntry>(record: TableRecord<T>): record is SectionRow {
-    return record != null && 'isSection' in record;
+function isSectionRow(record: unknown): record is SectionRow {
+    return typeof record === 'object' && record != null && 'isSection' in record;
+}
+
+function createSectionCellProps(record: unknown) {
+    return isSectionRow(record) ? {colSpan: 0} : {};
+}
+
+function buildTableDataWithSections<T extends BaseEntry>(
+    liveEntries: T[],
+    backupEntries: T[]
+): TableRecord<T>[] {
+    const tableData: TableRecord<T>[] = [
+        {id: 'section-live', isSection: SECTION_TYPES.LIVE as SectionRow['isSection']},
+        ...(liveEntries.length > 0
+            ? liveEntries
+            : [{id: 'no-data-live', isSection: SECTION_TYPES.LIVE as SectionRow['isSection'], isNoData: true} as SectionRow]),
+        {id: 'section-backup', isSection: SECTION_TYPES.BACKUP as SectionRow['isSection']},
+        ...(backupEntries.length > 0
+            ? backupEntries
+            : [{id: 'no-data-backup', isSection: SECTION_TYPES.BACKUP as SectionRow['isSection'], isNoData: true} as SectionRow]),
+    ];
+
+    return tableData;
 }
 
 // ===================== DRAG HANDLE =====================
@@ -179,40 +201,7 @@ function CarouselTable5<T extends BaseEntry>({
         const finalEntries = [...finalLive, ...finalBackup];
 
         // 5. Build table data with section headers
-        // const tableData: TableRecord<T>[] = [
-        //     { id: 'section-live', isSection: 'live' as const },
-        //     ...finalLive,
-        //     { id: 'section-backup', isSection: 'backup' as const },
-        //     ...finalBackup,
-        // ];
-
-        const tableData: TableRecord<T>[] = [];
-
-        // === SECTION LIVE ===
-        tableData.push({id: 'section-live', isSection: 'live' as const});
-
-        if (finalLive.length > 0) {
-            tableData.push(...finalLive);
-        } else {
-            tableData.push({
-                id: 'no-data',
-                isSection: 'live',
-                isNoData: true
-            } as any);
-        }
-
-        // === SECTION BACKUP ===
-        tableData.push({id: 'section-backup', isSection: 'backup' as const});
-
-        if (finalBackup.length > 0) {
-            tableData.push(...finalBackup);
-        } else {
-            tableData.push({
-                id: 'no-data',
-                isSection: 'backup',
-                isNoData: true
-            } as any);
-        }
+        const tableData = buildTableDataWithSections(finalLive, finalBackup);
 
         const sortableIds = finalEntries.map(e => e.id);
 
@@ -226,6 +215,11 @@ function CarouselTable5<T extends BaseEntry>({
     }, [sortedEntries, liveCount]);
 
     const {tableData, sortableIds, finalEntries} = processedData;
+    const finalEntriesRef = useRef<T[]>(finalEntries);
+
+    useEffect(() => {
+        finalEntriesRef.current = finalEntries;
+    }, [finalEntries]);
 
     // ===================== HANDLERS =====================
 
@@ -309,13 +303,13 @@ function CarouselTable5<T extends BaseEntry>({
 
     /** Toggle visibility + re-index positions */
     const handleToggleVisible = useCallback((id: string) => {
-        const newEntries = finalEntries.map(entry =>
+        const newEntries = finalEntriesRef.current.map(entry =>
             entry.id === id ? {...entry, visible: !entry.visible} : entry
         );
 
         onEntriesChange(reindexPositions(newEntries));
         markDirty();
-    }, [finalEntries, onEntriesChange, markDirty]);
+    }, [onEntriesChange, markDirty]);
 
     // ===================== COLUMNS DEFINITION =====================
     // TODO: Change resizable columns to use `useColumns` hook
@@ -354,7 +348,7 @@ function CarouselTable5<T extends BaseEntry>({
                         key: 'drag',
                         width: 60,
                         resizable: false,
-                        onCell: (record) => (isSectionRow(record) ? {colSpan: 0} : {}),
+                        onCell: createSectionCellProps,
                         render: (_, record) =>
                             isSectionRow(record) ? null : <DragHandle id={record.id}/>,
                     },
@@ -368,13 +362,14 @@ function CarouselTable5<T extends BaseEntry>({
                 key: 'type',
                 width: 100,
                 minWidth: 90,
-                onCell: (record) => (isSectionRow(record) ? {colSpan: 0} : {}),
+                onCell: createSectionCellProps,
                 render: (_, record) => {
                     if (isSectionRow(record)) return null;
 
                     const isParlay = record.type === 'Parlay' || record.type?.toLowerCase() === 'parlay';
+                    const parlayData = record.parlayData ?? [];
                     const hasParlayData =
-                        record.parlayData && Array.isArray(record.parlayData) && record.parlayData.length > 0;
+                        Array.isArray(parlayData) && parlayData.length > 0;
 
                     if (isParlay && hasParlayData) {
                         return (
@@ -384,8 +379,8 @@ function CarouselTable5<T extends BaseEntry>({
                                     title="Parlay Details"
                                     content={
                                         <div style={{maxWidth: 400}}>
-                                            <p><strong>Number of legs:</strong> {record.parlayData.length}</p>
-                                            {record.parlayData.map((leg: any, idx: number) => (
+                                            <p><strong>Number of legs:</strong> {parlayData.length}</p>
+                                            {parlayData.map((leg: any, idx: number) => (
                                                 <div
                                                     key={idx}
                                                     style={{
@@ -415,45 +410,45 @@ function CarouselTable5<T extends BaseEntry>({
             },
 
             // Other data columns
-            {title: 'Sport', width: 100, minWidth: 90, dataIndex: 'sport', key: 'sport', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'League', width: 100, minWidth: 90, dataIndex: 'league', key: 'league', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'Event', width: 100, minWidth: 90, dataIndex: 'event', key: 'event', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
-            {title: 'Period', width: 100, minWidth: 90, dataIndex: 'period', key: 'period', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Sport', width: 100, minWidth: 90, dataIndex: 'sport', key: 'sport', onCell: createSectionCellProps},
+            {title: 'League', width: 100, minWidth: 90, dataIndex: 'league', key: 'league', onCell: createSectionCellProps},
+            {title: 'Event', width: 100, minWidth: 90, dataIndex: 'event', key: 'event', onCell: createSectionCellProps},
+            {title: 'Period', width: 100, minWidth: 90, dataIndex: 'period', key: 'period', onCell: createSectionCellProps},
             {
                 title: 'Grading Units',
                 dataIndex: 'gradingUnits',
                 key: 'gradingUnits',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
+                onCell: createSectionCellProps
             },
             {
                 title: 'Market Type',
                 dataIndex: 'marketType',
                 key: 'marketType',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
+                onCell: createSectionCellProps
             },
-            {title: 'Header',width: 100, minWidth: 90, dataIndex: 'header', key: 'header', onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})},
+            {title: 'Header',width: 100, minWidth: 90, dataIndex: 'header', key: 'header', onCell: createSectionCellProps},
             {
                 title: 'Expiry Date/Time',
                 dataIndex: 'expiryDateTime',
                 key: 'expiryDateTime',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
+                onCell: createSectionCellProps
             },
             {
                 title: 'Country',
                 dataIndex: 'country',
                 key: 'country',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
+                onCell: createSectionCellProps
             },
             {
                 title: 'Language',
                 dataIndex: 'language',
                 key: 'language',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {})
+                onCell: createSectionCellProps
             },
 
             // Visible checkbox
@@ -461,7 +456,7 @@ function CarouselTable5<T extends BaseEntry>({
                 title: 'Visible',
                 key: 'visible',
                 width: 100, minWidth: 90,
-                onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {}),
+                onCell: createSectionCellProps,
                 render: (_, record) =>
                     isSectionRow(record) ? null : (
                         <input
@@ -480,7 +475,7 @@ function CarouselTable5<T extends BaseEntry>({
                         title: 'Actions',
                         key: 'actions',
                         width: 120, minWidth: 110,
-                        onCell: (r) => (isSectionRow(r) ? {colSpan: 0} : {}),
+                        onCell: createSectionCellProps,
                         render: (_, record) =>
                             isSectionRow(record) ? null : (
                                 <div>

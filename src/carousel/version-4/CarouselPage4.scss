@@ -148,6 +148,15 @@
 
   .ant-table-tbody {
 
+
+    .carousel-row:nth-child(odd) {
+      background-color: #a3daf8;
+    }
+
+    .carousel-row:nth-child(even) {
+      background-color: #f4f4f4;
+    }
+
     > tr.carousel-row:hover > td {
       background: #fff1b8 !important;
       transition: background 0.2s ease;
